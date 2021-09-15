@@ -62,7 +62,7 @@ public class MainActivity extends FlutterActivity {
     public static CameraSelector lens = CameraSelector.DEFAULT_FRONT_CAMERA;
     boolean isFront = true;
     PoseDetector poseDetector;
-    PoseLandmark leftShoulder;
+    PoseLandmark leftShoulder, nose;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,8 +111,29 @@ public class MainActivity extends FlutterActivity {
 //                                                    List<PoseLandmark> allPoseLandmarks = pose.getAllPoseLandmarks();
 //                                                    Bitmap btmp = PoseUtils.imageToBitmap(imageProxy.getImage(), imageProxy.getImageInfo().getRotationDegrees());
                                                     leftShoulder = pose.getPoseLandmark(PoseLandmark.LEFT_SHOULDER);
+                                                    nose = pose.getPoseLandmark(PoseLandmark.NOSE);
+
                                                     if(leftShoulder != null) {
                                                         System.out.println(leftShoulder.getPosition3D().getX() + " " + leftShoulder.getPosition3D().getY());
+                                                    }
+                                                    if(nose != null) {
+                                                        // System.out.println(nose.getPosition3D().getX() + " " + nose.getPosition3D().getY());
+                                                        channel.invokeMethod("nose", nose.getPosition3D().getX() + " " + nose.getPosition3D().getY()  + " " + nose.getPosition3D().getZ(),  new MethodChannel.Result() {
+                                                            @Override
+                                                            public void success(Object o) {
+                                                                // System.out.println("SUCCESS OUTPUT: " + o.toString());
+                                                            }
+                                                          
+                                                            @Override
+                                                            public void error(String s, String s1, Object o) {
+                                                                // System.out.println("ERROR OUTPUT: " + o.toString());
+                                                            }
+                                                          
+                                                            @Override
+                                                            public void notImplemented() {
+                                                                // System.out.println("NOT IMPLEMENTED ");
+                                                            }
+                                                          });
                                                     }
                                                     imageProxy.close();
                                                 }
@@ -137,10 +158,12 @@ public class MainActivity extends FlutterActivity {
     channel = new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL);
     channel.setMethodCallHandler(
           (call, result) -> {
-              System.out.println(call + " ++> " + result);
+              System.out.println(call.method);
+              if(call.method.equals("GET_FACE")) {
+                  if(nose != null) result.success(nose.getPosition3D().getX() + " " + nose.getPosition3D().getY());
+              }
           }
         );
-    channel.invokeMethod("hello","any argument");
   }
 
     void askPermissions() {

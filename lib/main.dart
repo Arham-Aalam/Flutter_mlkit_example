@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_cube/flutter_cube.dart';
+import 'package:mlkitexample/models/BodyLankmarks.dart';
 
 void main() {
   runApp(MyApp());
@@ -49,10 +51,25 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   String data = "ABCD";
   static const platform = MethodChannel('samples.flutter.dev/pose');
+  BodyLandmanrks landmanrks = new BodyLandmanrks();
+  late Scene _scene;
+  late Object demo;
 
   _MyHomePageState() {
     platform.setMethodCallHandler((call) {
-      print("Methods " + call.method);
+      // print("Methods " + call.method);
+
+      if (call.method == "nose") {
+        landmanrks.addNose(call.arguments);
+
+        print((landmanrks.nose.x).toString() +
+            " " +
+            (landmanrks.nose.y).toString());
+        face.position.setValues(
+            landmanrks.nose.x, landmanrks.nose.y, 5.0); // landmanrks.nose.z
+        face.updateTransform();
+        _scene.update();
+      }
       return new Future.value("");
     });
     _callFunction();
@@ -62,19 +79,55 @@ class _MyHomePageState extends State<MyHomePage> {
     platform.invokeMethod("DEMO_METHOD");
   }
 
+  late Object face;
+  bool runFaceLoop = true;
+
+  @override
+  void initState() {
+    face = Object(fileName: 'assets/human.obj');
+    demo = new Object(
+        name: "Demo",
+        position: new Vector3(2, 2, 2),
+        scale: new Vector3(2.5, 2.5, 1.5));
+    // _getFaceUpdate();
+    super.initState();
+  }
+
+  void _getFaceUpdate() async {
+    while (runFaceLoop) {
+      platform.invokeMethod("GET_FACE", "").then((value) {
+        print("Receieved-> " + value);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+
     return Scaffold(
-        body: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            data,
-          ),
-        ],
+        body: Container(
+      color: Colors.cyan,
+      width: size.width,
+      height: size.height,
+      // child: Center(
+      child: Cube(
+        onSceneCreated: (Scene scene) {
+          scene.world.add(face);
+          scene.world.add(demo);
+          scene.camera.zoom = 5;
+          _scene = scene;
+        },
       ),
-    ) // This trailing comma makes auto-formatting nicer for build methods.
-        );
+      // ),
+    ));
+  }
+
+  @override
+  void dispose() {
+    setState(() {
+      runFaceLoop = false;
+    });
+    super.dispose();
   }
 }
