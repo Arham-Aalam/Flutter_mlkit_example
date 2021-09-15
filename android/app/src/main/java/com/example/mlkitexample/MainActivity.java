@@ -114,7 +114,7 @@ public class MainActivity extends FlutterActivity {
                                                     nose = pose.getPoseLandmark(PoseLandmark.NOSE);
 
                                                     if(leftShoulder != null) {
-                                                        System.out.println(leftShoulder.getPosition3D().getX() + " " + leftShoulder.getPosition3D().getY());
+                                                        // System.out.println(leftShoulder.getPosition3D().getX() + " " + leftShoulder.getPosition3D().getY());
                                                     }
                                                     if(nose != null) {
                                                         // System.out.println(nose.getPosition3D().getX() + " " + nose.getPosition3D().getY());

@@ -12,6 +12,7 @@ class BodyLandmanrks {
     double z = double.parse(points.split(" ")[2]);
     x = mapRange(x, 0, 768, -50, 50);
     y = mapRange(y, 0, 1024, -50, 50);
+    z = mapRange(z, -10000, 10000, -10, 10);
     nose = new Vector3(x, y, z);
   }
 
