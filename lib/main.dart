@@ -69,8 +69,12 @@ class _MyHomePageState extends State<MyHomePage> {
             (landmanrks.nose.z).toString());
         face.position.setValues(landmanrks.nose.x, landmanrks.nose.y,
             landmanrks.nose.z); // landmanrks.nose.z
+        // face.position.x += 0.002;
+        // face.position.z += 0.002;
+        // face.position.y += 0.002;
         face.updateTransform();
         _scene.update();
+        // print(face.position);
       }
       return new Future.value("");
     });
@@ -86,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    face = Object(fileName: 'assets/face.obj');
+    face = Object(fileName: 'assets/human.obj');
     demo = new Object(
         name: "Demo",
         position: new Vector3(2, 2, 2),
