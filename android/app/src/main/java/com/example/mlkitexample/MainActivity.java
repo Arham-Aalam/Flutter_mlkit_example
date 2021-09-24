@@ -27,6 +27,7 @@ import com.google.mlkit.vision.pose.PoseDetector;
 import com.google.mlkit.vision.pose.PoseLandmark;
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions;
 
+import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
 import android.graphics.Bitmap;
@@ -39,6 +40,7 @@ import android.os.Bundle;
 import android.os.Build;
 import android.os.Handler;
 import android.util.Size;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.content.pm.PackageManager;
 import android.Manifest;
@@ -67,6 +69,7 @@ public class MainActivity extends FlutterActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         askPermissions();
         PoseDetectorOptions options =
@@ -113,27 +116,29 @@ public class MainActivity extends FlutterActivity {
                                                     leftShoulder = pose.getPoseLandmark(PoseLandmark.LEFT_SHOULDER);
                                                     nose = pose.getPoseLandmark(PoseLandmark.NOSE);
 
+                                                    sendData(pose);
+
                                                     if(leftShoulder != null) {
                                                         // System.out.println(leftShoulder.getPosition3D().getX() + " " + leftShoulder.getPosition3D().getY());
                                                     }
                                                     if(nose != null) {
                                                         // System.out.println(nose.getPosition3D().getX() + " " + nose.getPosition3D().getY());
-                                                        channel.invokeMethod("nose", nose.getPosition3D().getX() + " " + nose.getPosition3D().getY()  + " " + nose.getPosition3D().getZ(),  new MethodChannel.Result() {
-                                                            @Override
-                                                            public void success(Object o) {
-                                                                // System.out.println("SUCCESS OUTPUT: " + o.toString());
-                                                            }
-                                                          
-                                                            @Override
-                                                            public void error(String s, String s1, Object o) {
-                                                                // System.out.println("ERROR OUTPUT: " + o.toString());
-                                                            }
-                                                          
-                                                            @Override
-                                                            public void notImplemented() {
-                                                                // System.out.println("NOT IMPLEMENTED ");
-                                                            }
-                                                          });
+//                                                        channel.invokeMethod("nose", nose.getPosition3D().getX() + " " + nose.getPosition3D().getY()  + " " + nose.getPosition3D().getZ(),  new MethodChannel.Result() {
+//                                                            @Override
+//                                                            public void success(Object o) {
+//                                                                // System.out.println("SUCCESS OUTPUT: " + o.toString());
+//                                                            }
+//
+//                                                            @Override
+//                                                            public void error(String s, String s1, Object o) {
+//                                                                // System.out.println("ERROR OUTPUT: " + o.toString());
+//                                                            }
+//
+//                                                            @Override
+//                                                            public void notImplemented() {
+//                                                                // System.out.println("NOT IMPLEMENTED ");
+//                                                            }
+//                                                          });
                                                     }
                                                     imageProxy.close();
                                                 }
@@ -224,5 +229,60 @@ public class MainActivity extends FlutterActivity {
                 System.out.println("Permission Granted");
             }
         }
+    }
+
+    String formatPoints(PoseLandmark point) {
+        if(point == null)
+            return "";
+        return point.getPosition3D().getX() + " " + point.getPosition3D().getY()  + " " + point.getPosition3D().getZ();
+    }
+
+    void sendData(Pose pose) {
+        PoseLandmark leftShoulder = pose.getPoseLandmark(PoseLandmark.LEFT_SHOULDER);
+        PoseLandmark rightShoulder = pose.getPoseLandmark(PoseLandmark.RIGHT_SHOULDER);
+        PoseLandmark leftElbow = pose.getPoseLandmark(PoseLandmark.LEFT_ELBOW);
+        PoseLandmark rightElbow = pose.getPoseLandmark(PoseLandmark.RIGHT_ELBOW);
+        PoseLandmark leftWrist = pose.getPoseLandmark(PoseLandmark.LEFT_WRIST);
+        PoseLandmark rightWrist = pose.getPoseLandmark(PoseLandmark.RIGHT_WRIST);
+        PoseLandmark leftHip = pose.getPoseLandmark(PoseLandmark.LEFT_HIP);
+        PoseLandmark rightHip = pose.getPoseLandmark(PoseLandmark.RIGHT_HIP);
+        PoseLandmark leftKnee = pose.getPoseLandmark(PoseLandmark.LEFT_KNEE);
+        PoseLandmark rightKnee = pose.getPoseLandmark(PoseLandmark.RIGHT_KNEE);
+        PoseLandmark leftAnkle = pose.getPoseLandmark(PoseLandmark.LEFT_ANKLE);
+        PoseLandmark rightAnkle = pose.getPoseLandmark(PoseLandmark.RIGHT_ANKLE);
+        PoseLandmark nose = pose.getPoseLandmark(PoseLandmark.NOSE);
+
+        HashMap<String, String> data = new HashMap<>();
+
+        data.put("leftShoulder", formatPoints(leftShoulder));
+        data.put("rightShoulder", formatPoints(rightShoulder));
+        data.put("leftElbow", formatPoints(leftElbow));
+        data.put("rightElbow", formatPoints(rightElbow));
+        data.put("leftWrist", formatPoints(leftWrist));
+        data.put("rightWrist", formatPoints(rightWrist));
+        data.put("leftHip", formatPoints(leftHip));
+        data.put("rightHip", formatPoints(rightHip));
+        data.put("leftKnee", formatPoints(leftKnee));
+        data.put("rightKnee", formatPoints(rightKnee));
+        data.put("leftAnkle", formatPoints(leftAnkle));
+        data.put("rightAnkle", formatPoints(rightAnkle));
+        data.put("nose", formatPoints(nose));
+
+        channel.invokeMethod("data", data,  new MethodChannel.Result() {
+            @Override
+            public void success(Object o) {
+                // System.out.println("SUCCESS OUTPUT: " + o.toString());
+            }
+
+            @Override
+            public void error(String s, String s1, Object o) {
+                // System.out.println("ERROR OUTPUT: " + o.toString());
+            }
+
+            @Override
+            public void notImplemented() {
+                // System.out.println("NOT IMPLEMENTED ");
+            }
+        });
     }
 }

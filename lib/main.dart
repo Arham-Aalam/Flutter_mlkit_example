@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cube/flutter_cube.dart';
+import 'package:mlkitexample/GameWidget.dart';
 import 'package:mlkitexample/models/BodyLankmarks.dart';
 
 void main() {
@@ -9,24 +10,25 @@ void main() {
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ML kit Example',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
-    );
+        title: 'ML kit Example',
+        theme: ThemeData(
+          // This is the theme of your application.
+          //
+          // Try running your application with "flutter run". You'll see the
+          // application has a blue toolbar. Then, without quitting the app, try
+          // changing the primarySwatch below to Colors.green and then invoke
+          // "hot reload" (press "r" in the console where you ran "flutter run",
+          // or simply save your changes to "hot reload" in a Flutter IDE).
+          // Notice that the counter didn't reset back to zero; the application
+          // is not restarted.
+          primarySwatch: Colors.blue,
+        ),
+        home: GameWidget() // MyHomePage(title: 'Flutter Demo Home Page'),
+        );
   }
 }
 
@@ -51,7 +53,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   String data = "ABCD";
   static const platform = MethodChannel('samples.flutter.dev/pose');
-  BodyLandmanrks landmanrks = new BodyLandmanrks();
+  late BodyLandmanrks landmanrks;
   late Scene _scene;
   late Object demo;
 
@@ -60,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
       // print("Methods " + call.method);
 
       if (call.method == "nose") {
-        landmanrks.addNose(call.arguments);
+        landmanrks.addNose(call.arguments, MediaQuery.of(context).size);
 
         print((landmanrks.nose.x).toString() +
             " " +
@@ -110,6 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    landmanrks = new BodyLandmanrks();
 
     return Scaffold(
         body: Container(

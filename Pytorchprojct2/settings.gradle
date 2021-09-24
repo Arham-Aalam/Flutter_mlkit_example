@@ -1,0 +1,2 @@
+rootProject.name='Pytorchprojct2'
+include ':app'
